@@ -21,7 +21,7 @@ class GradesImpl implements C.CourseObj, G.Grades {
   private constructor(course: C.CourseInfo, colIds: Set<string> =null,
 		      rawRowsMap: RawRowsMap = null) {
     //uncomment following line if no ts files shown in chrome debugger
-    //debugger 
+    debugger 
     this.course = course;
     this.#colIds = colIds;
     this.#rawRowsMap = rawRowsMap;
@@ -35,7 +35,33 @@ class GradesImpl implements C.CourseObj, G.Grades {
    *    for course.
    */
   addColumn(colId: string) : Result<G.Grades> {
-    return errResult('TODO', 'UNIMPLEMENTED') as Result<G.Grades>;
+    const cols = this.course.cols
+    let err = new ErrResult();
+    if(this.#colIds.has(colId)){
+      err = err.addError(`new column ${colId} already in table`,'BAD_ARG')
+    }
+    const colProp = cols[colId]
+    if(colProp===undefined){
+      err = err.addError(`unknown column ${colId}`, 'BAD_ARG');
+    }
+    else if(colProp.kind ==='calc'){
+      err = err.addError(`attempt to add data for calculated column ${colId}`,
+      'BAD_ARG');
+    }
+    if(err.errors.length>0){
+      return err
+    }
+    const newColIds = new Set([...this.#colIds, colId].sort((colId1, colId2) => cols[colId1].colIndex - cols[colId2].colIndex));
+    const allRowsPairs = Object.keys(this.#rawRowsMap).map((rowId) => {
+      const row = {...this.#rawRowsMap[rowId], ...{[colId]:''}};
+      const row1Pairs = Object.keys(row)
+      .sort((colId1, colId2) => cols[colId1].colIndex - cols[colId2].colIndex)
+      .map(colId => [colId, row[colId]]);
+      return [rowId, Object.fromEntries(row1Pairs)];
+    });
+    const allRows = Object.fromEntries(allRowsPairs)
+    return okResult(new GradesImpl(this.course, newColIds, allRows));
+    //return errResult('TODO', 'UNIMPLEMENTED') as Result<G.Grades>;
   }
 
   /** Apply patches to table, returning the patched table.
@@ -136,4 +162,6 @@ class GradesImpl implements C.CourseObj, G.Grades {
 }
 
 //TODO: add auxiliary functions as needed
-
+function clone(o: Object) : Object {
+  return JSON.parse(JSON.stringify(o));
+}
