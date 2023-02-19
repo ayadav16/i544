@@ -21,7 +21,7 @@ class GradesImpl implements C.CourseObj, G.Grades {
   private constructor(course: C.CourseInfo, colIds: Set<string> =null,
 		      rawRowsMap: RawRowsMap = null) {
     //uncomment following line if no ts files shown in chrome debugger
-    debugger 
+    //debugger 
     this.course = course;
     this.#colIds = colIds;
     this.#rawRowsMap = rawRowsMap;
@@ -61,7 +61,6 @@ class GradesImpl implements C.CourseObj, G.Grades {
     });
     const allRows = Object.fromEntries(allRowsPairs)
     return okResult(new GradesImpl(this.course, newColIds, allRows));
-    //return errResult('TODO', 'UNIMPLEMENTED') as Result<G.Grades>;
   }
 
   /** Apply patches to table, returning the patched table.
@@ -116,12 +115,68 @@ class GradesImpl implements C.CourseObj, G.Grades {
       return okResult(new GradesImpl(this.course, this.#colIds, rawRowsMap)); 
 
     }
-    //return errResult('TODO', 'UNIMPLEMENTED') as Result<G.Grades>;
   }
 
   /** Return full table containing all computed values */
   getFullTable(): G.FullTable {
-    return null; //TODO
+    if(this.#fullTable!==null){
+      return this.#fullTable;
+    }else{
+      const cols = this.course.cols;
+      const allRows = this.#rawRowsMap;
+      
+      const allRowsPairs = Object.keys(allRows).map((rowId)=>{
+        const rowPairs = Object.keys(allRows[rowId]).map((colId)=>[colId,allRows[rowId][colId]]);
+        const row = Object.fromEntries(rowPairs);
+        Object.keys(this.course.cols).map(colId => {
+          const colProp = this.course.cols[colId]
+          if(colProp.kind==='calc'){
+            const res = colProp.fn(this.course, row)
+            if(res.isOk===true){
+              row[colId] = res.val
+            }else if(res.isOk===false){
+              row[colId] = res.errors[0].options.code
+            }
+          }
+        });
+        row[G.STAT_HDR] = '';
+        const sortedRows = Object.keys(row)
+        .sort((colId1, colId2) => (colId1===G.STAT_HDR || colId2===G.STAT_HDR)?-1: cols[colId1].colIndex - cols[colId2].colIndex)
+        .map((colId) => [colId, row[colId]]);
+        const newRow = Object.fromEntries(sortedRows);
+        return [rowId, newRow];
+      });
+      const existingCols = Object.keys(allRowsPairs[0][1]);
+      const allNewRows = Object.fromEntries(allRowsPairs);
+      const AllCalcRowsPairs = Object.keys(this.course.calcRows).map((calcRowId) => {
+        const calcRow = existingCols.map((colId)=>{
+          if(colId==='$stat'){
+            return [G.STAT_HDR,calcRowId];
+          }
+          else if(cols[colId].kind==='calc' || cols[colId].kind==='score'){
+            const gradeCol = Object.keys(allNewRows).map((rowId)=>{
+              return allNewRows[rowId][colId];
+            })
+            const res = this.course.calcRows[calcRowId].fn(this.course, gradeCol)
+            if(res.isOk===true){
+              return [colId, res.val];
+            }else if(res.isOk===false){
+              return [colId,res.errors[0].options.code];
+            }
+          }else{
+            return [colId, ''];
+        }});
+        const calcRowMap = Object.fromEntries(calcRow)
+        const calcRowSortedPairs = Object.keys(calcRowMap)
+        .sort((colId1, colId2) => (colId1===G.STAT_HDR || colId2===G.STAT_HDR)?-1: cols[colId1].colIndex - cols[colId2].colIndex)
+        .map((colId) => [colId, calcRowMap[colId]])
+
+        const calcRowSorted = Object.fromEntries(calcRowSortedPairs);
+        return [calcRowId, calcRowSorted];
+      });
+      const AllCalcRows = Object.fromEntries(AllCalcRowsPairs);
+      return Object.values({...allNewRows, ...AllCalcRows});
+    }
   }
 
   /** Return a raw table containing the raw data.  Note that all
