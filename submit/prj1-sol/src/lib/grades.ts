@@ -71,7 +71,52 @@ class GradesImpl implements C.CourseObj, G.Grades {
    *    RANGE: Patch data is out-of-range.
    */
   patch(patches: G.Patches): Result<G.Grades> {
-    return errResult('TODO', 'UNIMPLEMENTED') as Result<G.Grades>;
+    let err = new ErrResult();
+    const rowIds = Object.keys(this.#rawRowsMap);
+    const patchRowIds = Object.keys(patches);
+    const addRowIds = patchRowIds.filter(rowId => rowIds.indexOf(rowId)<0)
+    if(addRowIds.length>0){
+      err = err.addError(`unknown rowId ${addRowIds.join(', ')}`, 'BAD_ARG');
+    }
+    const cols = this.course.cols;
+    for(const [rowId, row] of Object.entries(patches)){
+      for(const [patchColId, val] of Object.entries(row)){
+        const patchColProp = cols[patchColId];
+        if(patchColProp===undefined){
+          err = err.addError(`unknown column ${patchColId}`, 'BAD_ARG');
+        }
+        else if(!this.#colIds.has(patchColId)){
+          err = err.addError(`new column ${patchColId}`, 'BAD_ARG');
+        }
+        if(patchColProp.kind==='calc'){
+          err = err.addError(`attempt to add data for calculated column ${patchColId}`,
+          'BAD_ARG');}
+        else if (patchColProp.kind === 'id'){
+          err = err.addError(`attempt to add id ${patchColId}`,
+          'BAD_ARG');
+        }
+        else if(patchColProp.kind=='score'){
+          const {min, max} = patchColProp
+          if(typeof val === 'number' && (val>max || val<min)){
+            const msg = `${patchColId} value ${val} out of range [${min}, ${max}]`;
+            err = err.addError(msg, 'RANGE');
+          }
+        }
+      }
+    }
+    if(err.errors.length>0){
+      return err
+    }else{
+      const allPatchesPair = Object.keys(patches).map((rowId)=>{
+        const row = {...this.#rawRowsMap[rowId], ...patches[rowId]}
+        return [rowId,row]
+      })
+      const allPatches = Object.fromEntries(allPatchesPair);
+      const rawRowsMap = {...this.#rawRowsMap, ...allPatches};
+      return okResult(new GradesImpl(this.course, this.#colIds, rawRowsMap)); 
+
+    }
+    //return errResult('TODO', 'UNIMPLEMENTED') as Result<G.Grades>;
   }
 
   /** Return full table containing all computed values */
