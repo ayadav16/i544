@@ -35,10 +35,10 @@ class GradesImpl implements C.CourseObj, G.Grades {
    *    for course.
    */
   addColumn(colId: string) : Result<G.Grades> {
-    const cols = this.course.cols
+    const cols = this.course.cols;
     let err = new ErrResult();
     if(this.#colIds.has(colId)){
-      err = err.addError(`new column ${colId} already in table`,'BAD_ARG')
+      err = err.addError(`new column ${colId} already in table`,'BAD_ARG');
     }
     const colProp = cols[colId]
     if(colProp===undefined){
@@ -49,7 +49,7 @@ class GradesImpl implements C.CourseObj, G.Grades {
       'BAD_ARG');
     }
     if(err.errors.length>0){
-      return err
+      return err;
     }
     const newColIds = new Set([...this.#colIds, colId].sort((colId1, colId2) => cols[colId1].colIndex - cols[colId2].colIndex));
     const allRowsPairs = Object.keys(this.#rawRowsMap).map((rowId) => {
@@ -59,7 +59,7 @@ class GradesImpl implements C.CourseObj, G.Grades {
       .map(colId => [colId, row[colId]]);
       return [rowId, Object.fromEntries(row1Pairs)];
     });
-    const allRows = Object.fromEntries(allRowsPairs)
+    const allRows = Object.fromEntries(allRowsPairs);
     return okResult(new GradesImpl(this.course, newColIds, allRows));
   }
 
@@ -73,7 +73,7 @@ class GradesImpl implements C.CourseObj, G.Grades {
     let err = new ErrResult();
     const rowIds = Object.keys(this.#rawRowsMap);
     const patchRowIds = Object.keys(patches);
-    const addRowIds = patchRowIds.filter(rowId => rowIds.indexOf(rowId)<0)
+    const addRowIds = patchRowIds.filter(rowId => rowIds.indexOf(rowId)<0);
     if(addRowIds.length>0){
       err = err.addError(`unknown rowId ${addRowIds.join(', ')}`, 'BAD_ARG');
     }
@@ -104,11 +104,11 @@ class GradesImpl implements C.CourseObj, G.Grades {
       }
     }
     if(err.errors.length>0){
-      return err
+      return err;
     }else{
       const allPatchesPair = Object.keys(patches).map((rowId)=>{
-        const row = {...this.#rawRowsMap[rowId], ...patches[rowId]}
-        return [rowId,row]
+        const row = {...this.#rawRowsMap[rowId], ...patches[rowId]};
+        return [rowId,row];
       })
       const allPatches = Object.fromEntries(allPatchesPair);
       const rawRowsMap = {...this.#rawRowsMap, ...allPatches};
@@ -166,10 +166,10 @@ class GradesImpl implements C.CourseObj, G.Grades {
           }else{
             return [colId, ''];
         }});
-        const calcRowMap = Object.fromEntries(calcRow)
+        const calcRowMap = Object.fromEntries(calcRow);
         const calcRowSortedPairs = Object.keys(calcRowMap)
         .sort((colId1, colId2) => (colId1===G.STAT_HDR || colId2===G.STAT_HDR)?-1: cols[colId1].colIndex - cols[colId2].colIndex)
-        .map((colId) => [colId, calcRowMap[colId]])
+        .map((colId) => [colId, calcRowMap[colId]]);
 
         const calcRowSorted = Object.fromEntries(calcRowSortedPairs);
         return [calcRowId, calcRowSorted];
