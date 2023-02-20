@@ -141,7 +141,7 @@ class GradesImpl implements C.CourseObj, G.Grades {
         });
         row[G.STAT_HDR] = '';
         const sortedRows = Object.keys(row)
-        .sort((colId1, colId2) => (colId1===G.STAT_HDR || colId2===G.STAT_HDR)?-1: cols[colId1].colIndex - cols[colId2].colIndex)
+        .sort((colId1, colId2) => (colId1!==G.STAT_HDR && colId2!==G.STAT_HDR)?cols[colId1].colIndex - cols[colId2].colIndex:(colId1===G.STAT_HDR?-1:1))
         .map((colId) => [colId, row[colId]]);
         const newRow = Object.fromEntries(sortedRows);
         return [rowId, newRow];
@@ -168,7 +168,7 @@ class GradesImpl implements C.CourseObj, G.Grades {
         }});
         const calcRowMap = Object.fromEntries(calcRow);
         const calcRowSortedPairs = Object.keys(calcRowMap)
-        .sort((colId1, colId2) => (colId1===G.STAT_HDR || colId2===G.STAT_HDR)?-1: cols[colId1].colIndex - cols[colId2].colIndex)
+        .sort((colId1, colId2) => (colId1!==G.STAT_HDR && colId2!==G.STAT_HDR)?cols[colId1].colIndex - cols[colId2].colIndex:(colId1===G.STAT_HDR?-1:1))
         .map((colId) => [colId, calcRowMap[colId]]);
 
         const calcRowSorted = Object.fromEntries(calcRowSortedPairs);
