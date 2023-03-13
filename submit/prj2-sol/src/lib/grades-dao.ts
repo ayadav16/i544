@@ -19,7 +19,6 @@ export class GradesDao {
   #grades: mongo.Collection;
 
   private constructor(params: { [key: string]: any }) {
-    //TODO
     this.#client = params.client;
     this.#grades = params.grades;
   }
@@ -43,7 +42,6 @@ export class GradesDao {
 
   /** Close this DAO. */
   async close() : Promise<Result<void>> {
-    //TODO
     try{
       await this.#client.close();
     }catch(e){
@@ -58,7 +56,6 @@ export class GradesDao {
   async load(courseId: string, rawTable: G.RawTable)
     : Promise<Result<G.Grades>>
   {
-    //TODO
     const check = checkCourseId(courseId)
     if(!check.isOk){
       return errResult(`unknown course id ${courseId}`,'BAD_ARG');
@@ -72,7 +69,6 @@ export class GradesDao {
    *   BAD_ARG: courseId is not a valid course-id.
    */
   async getGrades(courseId: string): Promise<Result<G.Grades>> {
-    //TODO
     const check = checkCourseId(courseId)
     if(!check.isOk){
       return errResult(`unknown course id ${courseId}`,'BAD_ARG');
@@ -83,7 +79,6 @@ export class GradesDao {
 
   /** Remove all course grades stored by this DAO */
   async clear() : Promise<Result<void>> {
-    //TODO
     try{
       await this.#grades.deleteMany({});
       return okResult(undefined);
@@ -113,7 +108,6 @@ export class GradesDao {
   async upsertRows(courseId: string, rows: G.RawRow[])
     : Promise<Result<G.Grades>> 
   {
-    //TODO
     const check = checkCourseId(courseId);
     if(!check.isOk){
       return errResult(`unknown course id ${courseId}`,'BAD_ARG');
@@ -149,7 +143,6 @@ export class GradesDao {
   async addColumns(courseId: string, ...colIds: string[])
     : Promise<Result<G.Grades>>
   {
-    //TODO
     const check = checkCourseId(courseId);
     if(!check.isOk){
       return errResult(`unknown course id ${courseId}`,'BAD_ARG');
@@ -176,7 +169,6 @@ export class GradesDao {
   async patch(courseId: string, patches: G.Patches)
     : Promise<Result<G.Grades>> 
   { 
-    //TODO
     const check = checkCourseId(courseId);
     if(!check.isOk){
       return errResult(`unknown course id ${courseId}`,'BAD_ARG');
