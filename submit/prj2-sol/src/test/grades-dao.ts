@@ -217,11 +217,11 @@ describe('grades dao', () => {
     
     it('adding a totally unknown column must result in an error', async () => {
       const courseId = 'cs220';
-      const addCols = [ 'xxx' ];
+      const addCol =  'xxx' ;
       const data = DATA[courseId].raw;
       const loadResult = await dao.load(courseId, data);
       assert(loadResult.isOk);
-      const colsResult = await dao.addColumns(courseId, ...addCols);
+      const colsResult = await dao.addColumn(courseId, addCol);
       assert(colsResult.isOk===false);
       expect(colsResult.errors).to.have.length(1);
       expect(colsResult.errors[0].options.code).to.equal('BAD_ARG');
