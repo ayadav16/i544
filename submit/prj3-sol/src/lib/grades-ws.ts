@@ -12,6 +12,8 @@ import { GradesDao } from 'cs544-prj2-sol';
 
 import { SelfLink, SuccessEnvelope, ErrorEnvelope }
   from './response-envelopes.js';
+import { stripVTControlCharacters } from 'util';
+import { resourceLimits } from 'worker_threads';
 
 export type App = Express.Application;
 
@@ -33,13 +35,121 @@ function setupRoutes(app: Express.Application) {
   app.use(Express.json());
 
   //TODO: add routes
+  app.get(`${base}/:course_id`,getCourseGrades(app))
+  app.get(`${base}/:course_id/:row_id`,getCourseGradeRow(app))
+  app.post(`${base}/:course_id`,loadCourseGrades(app))
+  app.patch(`${base}/:course_id`,patchCourseGrades(app))
 
   //must be last
   app.use(do404(app));
   app.use(doErrors(app));
 }
 // TODO: add handlers
+function getCourseGrades(app:Express.Application){
+  return async function (req: Express.Request, res: Express.Response) {
+    try{
+      const { course_id } = req.params;
+      const { full } = req.query;
+      const result = await app.locals.model.getGrades(course_id);
+      if(!result.isOk)throw result;
+      res.location(course_id)
+      if(full==='true'){
+        const records = result.val.getFullTable();
+        const response = selfResult<G.Grades>(req, records);
+        res.json(response)
+      }else{
+        const records = result.val.getRawTable();
+        const response = selfResult<G.Grades>(req, records);
+        res.json(response)
+      }
+    }catch(err){
+      console.log(err)
+      const mapped = mapResultErrors(err);
+      res.status(mapped.status).json(mapped);
+    }
+    
+  }
+}
 
+
+function getCourseGradeRow(app:Express.Application){
+  return async function (req: Express.Request, res: Express.Response) {
+    try{
+      const { course_id } = req.params;
+      const { row_id } = req.params;
+      const { full } = req.query;
+      const result = await app.locals.model.getGrades(course_id);
+      if(!result.isOk)throw result;
+      res.location(course_id)
+      if(full==='true'){
+        const records = result.val.getFullTableRow(row_id);
+        const response = selfResult<G.Grades>(req, records);
+        res.json(response)
+      }else{
+        const records = result.val.getRawTableRow(row_id);
+        const response = selfResult<G.Grades>(req, records);
+        res.json(response)
+      }
+    }catch(err){
+      console.log(err)
+      const mapped = mapResultErrors(err);
+      res.status(mapped.status).json(mapped);
+    }
+    
+  }
+}
+
+function loadCourseGrades(app:Express.Application){
+  return async function (req: Express.Request, res: Express.Response) {
+    try{
+      const { course_id } = req.params;
+      const courseGrades = req.body;
+      const { full } = req.query;
+      const result = await app.locals.model.load(course_id, courseGrades);
+      if(!result.isOk)throw result;
+      res.location(course_id);
+      if(full==='true'){
+        const response = selfResult<G.Grades>(req,result.val.getFullTable());
+        res.json(response);
+      }else{
+        const response = selfResult<G.Grades>(req,result.val.getRawTable());
+        res.json(response);
+      }
+
+    }catch(err){
+      console.log(err)
+      const mapped = mapResultErrors(err);
+      res.status(mapped.status).json(mapped);
+    }
+    
+  }
+}
+
+function patchCourseGrades(app:Express.Application){
+  return async function (req: Express.Request, res: Express.Response) {
+    try{
+      const { course_id } = req.params;
+      const patchedGrades = req.body;
+      const { full } = req.query;
+      const result = await app.locals.model.patch(course_id, patchedGrades);
+      if(!result.isOk)throw result;
+      res.location(course_id);
+      if(full==='true'){
+        const response = selfResult<G.Grades>(req,result.val.getFullTable());
+        res.json(response);
+      }else{
+        const response = selfResult<G.Grades>(req,result.val.getRawTable());
+        res.json(response);
+      }
+
+    }catch(err){
+      console.log(err)
+      const mapped = mapResultErrors(err);
+      res.status(mapped.status).json(mapped);
+    }
+    
+  }
+}
 // A typical handler can be produced by running a function like
 // the following:
 function doSomeHandler(app: Express.Application) {
