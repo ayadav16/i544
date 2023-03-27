@@ -83,11 +83,13 @@ function getCourseGradeRow(app:Express.Application){
       res.location(course_id)
       if(full==='true'){
         const records = result.val.getFullTableRow(row_id);
-        const response = selfResult<G.Grades>(req, records);
+        if(!records.isOk)throw records;
+        const response = selfResult<G.Grades>(req, records.val);
         res.json(response)
       }else{
         const records = result.val.getRawTableRow(row_id);
-        const response = selfResult<G.Grades>(req, records);
+        if(!records.isOk)throw records;
+        const response = selfResult<G.Grades>(req, records.val);
         res.json(response)
       }
     }catch(err){
