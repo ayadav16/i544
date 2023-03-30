@@ -63,7 +63,6 @@ function getCourseGrades(app:Express.Application){
         res.json(response)
       }
     }catch(err){
-      console.log(err)
       const mapped = mapResultErrors(err);
       res.status(mapped.status).json(mapped);
     }
@@ -93,7 +92,6 @@ function getCourseGradeRow(app:Express.Application){
         res.json(response)
       }
     }catch(err){
-      console.log(err)
       const mapped = mapResultErrors(err);
       res.status(mapped.status).json(mapped);
     }
@@ -119,7 +117,6 @@ function loadCourseGrades(app:Express.Application){
       }
 
     }catch(err){
-      console.log(err)
       const mapped = mapResultErrors(err);
       res.status(mapped.status).json(mapped);
     }
@@ -145,7 +142,6 @@ function patchCourseGrades(app:Express.Application){
       }
 
     }catch(err){
-      console.log(err)
       const mapped = mapResultErrors(err);
       res.status(mapped.status).json(mapped);
     }
