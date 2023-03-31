@@ -1,0 +1,17 @@
+Name:		Apoorv Yadav
+B-Number:	B00977654
+Email:		ayadav7@binghamton.edu
+
+Status: Ready for submission
+
+Test Cases from do-log.sh: No diff
+ayadav7@CS444-ayadav7:~/i544/submit/prj3-sol$ ~/cs544/projects/prj3/extras/do-log.sh > test.log 
+ayadav7@CS444-ayadav7:~/i544/submit/prj3-sol$ diff test.log ~/cs544/projects/prj3/extras/stdout.LOG 
+ayadav7@CS444-ayadav7:~/i544/submit/prj3-sol$ wc -l ~/cs544/projects/prj3/extras/stdout.LOG
+1316 /home/ayadav7/cs544/projects/prj3/extras/stdout.LOG
+ayadav7@CS444-ayadav7:~/i544/submit/prj3-sol$ wc -l test.log 
+1316 test.log
+
+Slack Days Used:
+
+0 slack days used so far
