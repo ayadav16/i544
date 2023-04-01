@@ -34,7 +34,6 @@ function setupRoutes(app: Express.Application) {
   app.use(cors({exposedHeaders: 'Location'}));
   app.use(Express.json());
 
-  //TODO: add routes
   app.get(`${base}/:course_id`,getCourseGrades(app))
   app.get(`${base}/:course_id/:row_id`,getCourseGradeRow(app))
   app.post(`${base}/:course_id`,loadCourseGrades(app))
@@ -44,7 +43,7 @@ function setupRoutes(app: Express.Application) {
   app.use(do404(app));
   app.use(doErrors(app));
 }
-// TODO: add handlers
+
 function getCourseGrades(app:Express.Application){
   return async function (req: Express.Request, res: Express.Response) {
     try{
