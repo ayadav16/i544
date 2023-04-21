@@ -8,9 +8,18 @@ Status of the project:
 Completed
 
 Functionalities:
-All required functionalities are completed.
+All required functionalities are completed including:
+data when web page loads
+data on any change in the form
+error on fetch or data load
+decimal round-off
 
 Late Days:
 None used so far
 
+Steps to Run:
+npm ci
 
+tsc
+
+npm run start
