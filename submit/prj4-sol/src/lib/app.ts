@@ -1,7 +1,7 @@
 import { CourseInfo as C, GradeTable as G, GradesImpl, COURSES }
   from 'cs544-prj1-sol';
 
-import { Err, Result, okResult, errResult, ErrResult, OkResult } from 'cs544-js-utils';
+import { Err, Result, okResult, errResult, ErrResult } from 'cs544-js-utils';
 import { GradeRow, RawRow } from 'cs544-prj1-sol/dist/lib/grade-table';
 
 /** factory function to create an App and take care of any
@@ -18,24 +18,28 @@ class App {
   #wsUrl:string;
   #webService:ApiService;
   #form:HTMLFormElement;
-  #error:Element | null;
-  #gradeTable: Element | null;
-  #courseInput:Element | null;
+  #error:HTMLLIElement;
+  #gradeTable: HTMLTableElement;
+  #courseInput: HTMLSelectElement;
 
   constructor(wsUrl: string) {
     //TODO
     //cache form HTMLElements as instance vars, set up handlers, web services
 
+    // Web Service
     this.#wsUrl = wsUrl;
-    this.#form  = document.querySelector('form#grades-form') as HTMLFormElement;
-    this.#error = document.querySelector('#errors');
-    this.#gradeTable = document.querySelector('#grades');
     this.#webService = new ApiService(this.#wsUrl);
-    this.#courseInput = document.querySelector('#course-id');
 
+    // HTMLElements
+    this.#form  = document.querySelector('form#grades-form') as HTMLFormElement;
+    this.#error = document.querySelector('#errors') as HTMLLIElement;
+    this.#gradeTable = document.querySelector('#grades') as HTMLTableElement;
+    this.#courseInput = document.querySelector('#course-id') as HTMLSelectElement;
+
+    // Course Options
     coursesOptions().forEach(e => document.querySelector("#course-id")?.appendChild(e));
 
-
+    // Setup Handlers
     this.#form.addEventListener('submit', (ev)=>{ev.preventDefault()});
 
     for( const sel of ['#course-id', '#student-id','#show-stats']){
@@ -50,8 +54,8 @@ class App {
 
   //TODO: add methods/data as necessary.
   async getGrades(queryData:{ [name: string]: string }){
-    this.#error?.replaceChildren();
-    this.#gradeTable?.replaceChildren();
+    this.#error.replaceChildren();
+    this.#gradeTable.replaceChildren();
     const gradeObject = await this.#webService.getCourseGrades(queryData['courseId']);
     if(gradeObject===undefined)return;
     if(gradeObject.isOk===true){
@@ -86,18 +90,20 @@ class App {
     }
   }
 
+  // Populates error list
   makeErrorList(err: ErrResult){
     for(const errItem of err.errors){
       const liItem = makeElement('li',{},errItem.message);
-      this.#error?.appendChild(liItem);
+      this.#error.appendChild(liItem);
     }
   }
 
+  // Generates Table
   makeGradesTable(data: GradeRow[]){
     if(data.length===0)return;
     const headers = Object.keys(data[0]);
     const trHeader =  makeElement('tr');
-    this.#gradeTable?.appendChild(trHeader);
+    this.#gradeTable.appendChild(trHeader);
 
     for(const heading of headers){
       const thItem = makeElement('th',{},heading);
@@ -110,27 +116,26 @@ class App {
         const tdItem = makeElement('td',{},round(cell).toString());
         trData.appendChild(tdItem);
       }
-      this.#gradeTable?.appendChild(trData);
+      this.#gradeTable.appendChild(trData);
     }
   }
-
+  // Initialize table after page loads
   initTable(){
-    this.#courseInput?.dispatchEvent(new Event("change"));
+    this.#courseInput.dispatchEvent(new Event("change"));
   }
 
 }
 
 // TODO: add auxiliary functions / classes.
-function makeWebServices(url:string){
-  const webServiceApi = new ApiService(url);
-  return webServiceApi;
-}
 
+// Web Service Class
 class ApiService{
   baseUrl:string;
   constructor(url:string){
     this.baseUrl = url;
   }
+
+  // Fetches data from the route
   async getCourseGrades(courseId:string){
     try{
       const response = await fetch(`${this.baseUrl}/grades/${courseId}`);
@@ -150,6 +155,7 @@ class ApiService{
   }
 }
 
+// Rounds the decimal to at most one decimal
 function round(grade:G.Grade):G.Grade{
   if(typeof grade === 'number'){
     return Math.round(grade*10)/10;
