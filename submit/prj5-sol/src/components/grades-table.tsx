@@ -25,18 +25,15 @@ export default function GradesTable(props: GradesTableProps) {
     const hdrs = Object.keys(data[0]);
     const changeGradeHandler = async function (rowId: string, colId: string, val: string) {
       const colInfo = courseInfo.cols[colId];
-      console.log(rowId, colId, val)
+      // console.log(rowId, colId, val)
       if (colInfo !== undefined && colInfo.kind === 'score') {
         const numVal: number = +val;
-        console.log(numVal,courseId, colInfo);
+        // console.log(numVal,courseId, colInfo);
         if(isNaN(numVal)){
           const msg = `value for [${rowId}, ${colId}] should be a number`;
           setResult(errResult(msg));
         }
-        else if (numVal > colInfo.max || numVal < colInfo.min) {
-          const msg = `value ${numVal} for ${colId} out of range [${colInfo.min}, ${colInfo.max}] `;
-          setResult(errResult(msg));
-        } else {
+         else {
           const patch: Patches = { [rowId]: { [colId]: numVal } };
           const result = await ws.updateCourseGrades(courseId, patch);
           setResult(result);
@@ -136,7 +133,7 @@ function DataRow(props: DataRowProps) {
           return <td key={d[0]}>{value}</td>
         }else if(hasRowId && colInfo!==undefined && colInfo.kind==='score'){
           const value = d[1].toString();
-          return <td><GradeInput key={d[0]} rowId={rowId} colId={d[0]} val={value} changeGrade={changeGrade}/></td>
+          return <td key={d[0]}><GradeInput rowId={rowId} colId={d[0]} val={value} changeGrade={changeGrade}/></td>
         }
         else{
           const value = d[1];
