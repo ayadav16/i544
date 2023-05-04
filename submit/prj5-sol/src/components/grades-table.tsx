@@ -122,13 +122,18 @@ function DataRow(props: DataRowProps) {
   const rowIdColId:string = courseInfo.rowIdColId;
   const rowId = dataRow[rowIdColId] as string;
   const hasRowId = rowId !=='';
+  const isStat = dataRow['$stat'] as string; 
   const htmlRow = row.map(d=>{
       if(d[1] instanceof ErrResult){
       return <td key={d[0]}></td>
       }else{
         const colId = d[0];
         const colInfo = courseInfo.cols[colId];
-        if(colInfo!==undefined && colInfo.kind==='calc'){
+        if(!hasRowId && colInfo!==undefined && isStat==='Avg' && colInfo.kind==='score'){
+          const value = Number(d[1]).toFixed(1);
+          return <td key={d[0]}>{value}</td>
+        }
+        else if(colInfo!==undefined && colInfo.kind==='calc'){
           const value = Number(d[1]).toFixed(1);
           return <td key={d[0]}>{value}</td>
         }else if(hasRowId && colInfo!==undefined && colInfo.kind==='score'){
