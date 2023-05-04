@@ -1,6 +1,17 @@
-Name:		XXX
-B-Number:	XXX
-Email:		XXX
+Name:		Apoorv Yadav
+B-Number:	B00977654
+Email:		ayadav7@binghamton.edu
 
-Add text here as needed.
+Status: Ready to submit
+
+All functionalities working including:
+1. Get grades
+2. Patch correct grades
+3. list error when not a Number
+4. list error when not a valid range
+5. update grades when select different courseId
+6. update url on input.
+
+Late Days Used:
+0 so far
 
