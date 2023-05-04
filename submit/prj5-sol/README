@@ -4,6 +4,13 @@ Email:		ayadav7@binghamton.edu
 
 Status: Ready to submit
 
+Steps to Run:
+1. npm ci
+
+2. tsc
+ 
+3. npm start
+
 All functionalities working including:
 1. Get grades
 2. Patch correct grades
