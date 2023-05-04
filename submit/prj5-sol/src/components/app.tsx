@@ -22,7 +22,7 @@ export default function App(props: {}) {
     <>
       <form className="grid-form">
         <label htmlFor="ws-url">Grades Web Services Base URL</label>
-        <input id="ws-url" value="https://localhost:2345"
+        <input id="ws-url" value={wsUrl}
                onChange={ev => setWsUrl(ev.target.value)}/>
         <CourseSelect courseId={courseId} change={setCourseId}/>
       </form>

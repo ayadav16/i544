@@ -20,6 +20,7 @@ export default function Grades(props: GradesProps) {
   const [ grades, setGrades ] = React.useState<G.Grades|null>(null);
   const [ errors, setErrors ] = React.useState<string[]>([]);
   React.useEffect(() => {
+    setGrades(null);
     const fetch = async () => {
       const gradesResult = await ws.getCourseGrades(courseId);
       if (gradesResult.isOk) {

@@ -27,7 +27,7 @@ export default function GradesTable(props: GradesTableProps) {
       const colInfo = courseInfo.cols[colId];
       // console.log(rowId, colId, val)
       if (colInfo !== undefined && colInfo.kind === 'score') {
-        const numVal: number = +val;
+        const numVal: number = Number(val);
         // console.log(numVal,courseId, colInfo);
         if(isNaN(numVal)){
           const msg = `value for [${rowId}, ${colId}] should be a number`;
